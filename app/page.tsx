@@ -217,11 +217,13 @@ export default function Home() {
               rows={10}
               className="h-32"
             />
-            {formik.touched.prompt && formik.errors.prompt ? (
-              <p className="text-sm text-red-400">{formik.errors.prompt}</p>
-            ) : null}
           </section>
-          <footer className="flex justify-end items-center">
+          <footer className="flex justify-between items-center">
+            <section>
+              {formik.touched.prompt && formik.errors.prompt ? (
+                <p className="text-sm text-red-400">{formik.errors.prompt}</p>
+              ) : null}
+            </section>
             <Button
               onClick={() => formik.submitForm()}
               type="submit"
