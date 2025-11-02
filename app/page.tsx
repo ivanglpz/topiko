@@ -2,15 +2,13 @@
 
 import { Button } from "@/components/ui/button";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Label } from "@/components/ui/label";
-import * as Icons from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -20,24 +18,11 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useFormik } from "formik";
-import { z } from "zod";
-import { toFormikValidationSchema } from "zod-formik-adapter";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuPortal,
-  DropdownMenuSeparator,
-  DropdownMenuShortcut,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import * as Icons from "lucide-react";
 import { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
+import { z } from "zod";
+import { toFormikValidationSchema } from "zod-formik-adapter";
 
 const Schema = z.object({
   prompt: z.string("Prompt is required").min(5, "Prompt too short"),
@@ -52,7 +37,64 @@ type Message = {
 };
 
 export default function Home() {
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<Message[]>([
+    {
+      id: uuidv4(),
+      level: "easy",
+      nQuestions: "five",
+      prompt: "What is the capital of France?",
+      createdAt: new Date().toISOString(),
+    },
+    {
+      id: uuidv4(),
+      level: "medium",
+      nQuestions: "ten",
+      prompt: "What is the capital of Spain?",
+      createdAt: new Date().toISOString(),
+    },
+    {
+      id: uuidv4(),
+      level: "hard",
+      nQuestions: "fifteen",
+      prompt: "What is the capital of Italy?",
+      createdAt: new Date().toISOString(),
+    },
+    {
+      id: uuidv4(),
+      level: "expert",
+      nQuestions: "twenty",
+      prompt: "What is the capital of Germany?",
+      createdAt: new Date().toISOString(),
+    },
+    {
+      id: uuidv4(),
+      level: "expert",
+      nQuestions: "twenty",
+      prompt: "What is the capital of Germany?",
+      createdAt: new Date().toISOString(),
+    },
+    {
+      id: uuidv4(),
+      level: "expert",
+      nQuestions: "twenty",
+      prompt: "What is the capital of Germany?",
+      createdAt: new Date().toISOString(),
+    },
+    {
+      id: uuidv4(),
+      level: "expert",
+      nQuestions: "twenty",
+      prompt: "What is the capital of Germany?",
+      createdAt: new Date().toISOString(),
+    },
+    {
+      id: uuidv4(),
+      level: "expert",
+      nQuestions: "twenty",
+      prompt: "What is the capital of Germany?",
+      createdAt: new Date().toISOString(),
+    },
+  ]);
   const formik = useFormik({
     initialValues: {
       level: "easy" as Message["level"],
@@ -68,11 +110,53 @@ export default function Home() {
       resetForm();
     },
   });
+  const deleteMessage = (id: string) => {
+    setMessages((prev) => prev.filter((message) => message.id !== id));
+  };
+  const deleteAllMessages = () => {
+    setMessages([]);
+  };
+  const copyMessage = (id: string) => {
+    const message = messages.find((message) => message.id === id);
+    formik.setFieldValue("prompt", message?.prompt);
+    formik.setFieldValue("level", message?.level);
+    formik.setFieldValue("nQuestions", message?.nQuestions);
+  };
+  const repeatMessage = (id: string) => {
+    const message = messages.find((message) => message.id === id);
+    if (!message) return;
+    formik.setValues({
+      prompt: message?.prompt,
+      level: message?.level,
+      nQuestions: message?.nQuestions,
+    });
+    formik.handleSubmit();
+  };
+
   return (
-    <section className="grid grid-cols-[1fr_380px] min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-neutral-950">
+    <section className="grid grid-cols-[1fr_380px] overflow-hidden items-center justify-center bg-zinc-50 font-sans dark:bg-neutral-950">
       <div></div>
-      <aside className="flex flex-col h-full p-4 bg-neutral-900">
-        <section className="h-full w-full">
+      <aside className="flex flex-col h-screen overflow-hidden p-4 bg-neutral-900">
+        <header className="flex flex-row justify-between items-center pb-5">
+          <h1 className="text-2xl font-bold">Topiko</h1>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost">
+                <Icons.EllipsisVertical className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-24" align="end">
+              <DropdownMenuItem disabled>Options</DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => deleteAllMessages()}>
+                <Icons.Trash2 className=" h-4 w-4" />
+                Clear Chat
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </header>
+        {/* sección scrollable */}
+        <section className="flex-1 overflow-y-auto pr-2 flex flex-col gap-8">
           {messages.map((message) => (
             <div key={message.id}>
               <header className="flex flex-row justify-between items-center">
@@ -85,7 +169,6 @@ export default function Home() {
                       day: "numeric", // 10, 11, etc.
                       hour: "2-digit",
                       minute: "2-digit",
-                      second: "2-digit",
                     },
                   )}
                 </p>
@@ -98,15 +181,15 @@ export default function Home() {
                   <DropdownMenuContent className="w-24" align="end">
                     <DropdownMenuItem disabled>Options</DropdownMenuItem>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => deleteMessage(message.id)}>
                       <Icons.Trash2 className=" h-4 w-4" />
                       Delete
                     </DropdownMenuItem>
-                    <DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => copyMessage(message.id)}>
                       <Icons.Copy className=" h-4 w-4" />
                       Copy
                     </DropdownMenuItem>
-                    <DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => repeatMessage(message.id)}>
                       <Icons.Repeat className=" h-4 w-4" />
                       Repeat
                     </DropdownMenuItem>
@@ -117,7 +200,7 @@ export default function Home() {
             </div>
           ))}
         </section>
-        <section className="flex flex-col gap-4">
+        <section className="flex flex-col gap-4 mt-4">
           <div className="flex flex-row gap-4">
             <section className="flex flex-col gap-2">
               <header className="flex items-center">
