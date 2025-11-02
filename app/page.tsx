@@ -19,7 +19,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { useFormik } from "formik";
 import * as Icons from "lucide-react";
-import { useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { z } from "zod";
 import { toFormikValidationSchema } from "zod-formik-adapter";
@@ -37,70 +37,24 @@ type Message = {
 };
 
 export default function Home() {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: uuidv4(),
-      level: "easy",
-      nQuestions: "five",
-      prompt: "What is the capital of France?",
-      createdAt: new Date().toISOString(),
-    },
-    {
-      id: uuidv4(),
-      level: "medium",
-      nQuestions: "ten",
-      prompt: "What is the capital of Spain?",
-      createdAt: new Date().toISOString(),
-    },
-    {
-      id: uuidv4(),
-      level: "hard",
-      nQuestions: "fifteen",
-      prompt: "What is the capital of Italy?",
-      createdAt: new Date().toISOString(),
-    },
-    {
-      id: uuidv4(),
-      level: "expert",
-      nQuestions: "twenty",
-      prompt: "What is the capital of Germany?",
-      createdAt: new Date().toISOString(),
-    },
-    {
-      id: uuidv4(),
-      level: "expert",
-      nQuestions: "twenty",
-      prompt: "What is the capital of Germany?",
-      createdAt: new Date().toISOString(),
-    },
-    {
-      id: uuidv4(),
-      level: "expert",
-      nQuestions: "twenty",
-      prompt: "What is the capital of Germany?",
-      createdAt: new Date().toISOString(),
-    },
-    {
-      id: uuidv4(),
-      level: "expert",
-      nQuestions: "twenty",
-      prompt: "What is the capital of Germany?",
-      createdAt: new Date().toISOString(),
-    },
-    {
-      id: uuidv4(),
-      level: "expert",
-      nQuestions: "twenty",
-      prompt: "What is the capital of Germany?",
-      createdAt: new Date().toISOString(),
-    },
-  ]);
+  const messagesRef = useRef<HTMLElement | null>(null);
+  const [messages, setMessages] = useState<Message[]>([]);
+
+  useEffect(() => {
+    if (messagesRef.current) {
+      messagesRef.current.scrollTo({
+        top: messagesRef.current.scrollHeight,
+        behavior: "smooth",
+      });
+    }
+  }, [messages]);
   const formik = useFormik({
     initialValues: {
       level: "easy" as Message["level"],
       nQuestions: "five" as Message["nQuestions"],
       prompt: "" as Message["prompt"],
     },
+    enableReinitialize: true,
     validationSchema: toFormikValidationSchema(Schema),
     onSubmit: (values, { resetForm }) => {
       setMessages((prev) => [
@@ -118,17 +72,18 @@ export default function Home() {
   };
   const copyMessage = (id: string) => {
     const message = messages.find((message) => message.id === id);
-    formik.setFieldValue("prompt", message?.prompt);
-    formik.setFieldValue("level", message?.level);
-    formik.setFieldValue("nQuestions", message?.nQuestions);
+    if (!message) return;
+    formik.setFieldValue("prompt", message.prompt);
+    formik.setFieldValue("level", message.level);
+    formik.setFieldValue("nQuestions", message.nQuestions);
   };
   const repeatMessage = (id: string) => {
     const message = messages.find((message) => message.id === id);
     if (!message) return;
     formik.setValues({
-      prompt: message?.prompt,
-      level: message?.level,
-      nQuestions: message?.nQuestions,
+      prompt: message.prompt,
+      level: message.level,
+      nQuestions: message.nQuestions,
     });
     formik.handleSubmit();
   };
@@ -156,11 +111,14 @@ export default function Home() {
           </DropdownMenu>
         </header>
         {/* sección scrollable */}
-        <section className="flex-1 overflow-y-auto pr-2 flex flex-col gap-8">
+        <section
+          ref={messagesRef}
+          className="flex-1 overflow-y-auto pr-2 flex flex-col gap-8 pb-4"
+        >
           {messages.map((message) => (
             <div key={message.id}>
               <header className="flex flex-row justify-between items-center">
-                <p className="opacity-70">
+                <p className="opacity-70 text-sm ">
                   {new Date(message.createdAt).toLocaleString(
                     navigator.language,
                     {
@@ -196,11 +154,11 @@ export default function Home() {
                   </DropdownMenuContent>
                 </DropdownMenu>
               </header>
-              <p>{message.prompt}</p>
+              <p className="wrap-break-word">{message.prompt}</p>
             </div>
           ))}
         </section>
-        <section className="flex flex-col gap-4 mt-4">
+        <section className="flex flex-col gap-4 pt-4 border-t-2">
           <div className="flex flex-row gap-4">
             <section className="flex flex-col gap-2">
               <header className="flex items-center">
@@ -259,9 +217,9 @@ export default function Home() {
               rows={10}
               className="h-32"
             />
-            {formik.errors.prompt && (
+            {formik.touched.prompt && formik.errors.prompt ? (
               <p className="text-sm text-red-400">{formik.errors.prompt}</p>
-            )}
+            ) : null}
           </section>
           <footer className="flex justify-end items-center">
             <Button
