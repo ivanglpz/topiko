@@ -89,32 +89,27 @@ export default function Home() {
   };
 
   return (
-    <section className="grid grid-cols-[1fr_380px] overflow-hidden items-center justify-center bg-zinc-50 font-sans dark:bg-neutral-950">
-      <div></div>
-      <aside className="flex flex-col h-screen overflow-hidden p-4 bg-neutral-900">
-        <header className="flex flex-row justify-between items-center pb-5">
-          <h1 className="text-2xl font-bold">Topiko</h1>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost">
-                <Icons.EllipsisVertical className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-24" align="end">
-              <DropdownMenuItem disabled>Options</DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => deleteAllMessages()}>
-                <Icons.Trash2 className=" h-4 w-4" />
-                Clear Chat
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </header>
+    <section className="flex flex-col justify-center items-center w-full  ">
+      <header className="flex sticky top-0 flex-row justify-end items-center backdrop-blur-lg w-full">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost">
+              <Icons.EllipsisVertical className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-24" align="end">
+            <DropdownMenuItem disabled>Options</DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => deleteAllMessages()}>
+              <Icons.Trash2 className=" h-4 w-4" />
+              Clear Chat
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </header>
+      <div className="flex flex-col w-full max-w-[1240px] min-h-dvh ">
         {/* sección scrollable */}
-        <section
-          ref={messagesRef}
-          className="flex-1 overflow-y-auto pr-2 flex flex-col gap-8 pb-4"
-        >
+        <section ref={messagesRef} className=" pr-2 flex flex-col gap-8 pb-4">
           {messages.map((message) => (
             <div key={message.id}>
               <header className="flex flex-row justify-between items-center">
@@ -158,83 +153,67 @@ export default function Home() {
             </div>
           ))}
         </section>
-        <section className="flex flex-col gap-4 pt-4 border-t-2">
-          <div className="flex flex-row gap-4">
-            <section className="flex flex-col gap-2">
-              <header className="flex items-center">
-                <Label htmlFor="level">Levels</Label>
-              </header>
-              <Select
-                value={formik.values.level}
-                onValueChange={(value) => formik.setFieldValue("level", value)}
-              >
-                <SelectTrigger id="level" className="w-full">
-                  <SelectValue placeholder="Select a level" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="beginner">Beginner</SelectItem>
-                  <SelectItem value="easy">Easy</SelectItem>
-                  <SelectItem value="medium">Medium</SelectItem>
-                  <SelectItem value="hard">Hard</SelectItem>
-                  <SelectItem value="expert">Expert</SelectItem>
-                </SelectContent>
-              </Select>
-            </section>
-            <section className="flex flex-col gap-2">
-              <header className="flex items-center">
-                <Label htmlFor="level">N. Questions</Label>
-              </header>
-              <Select
-                value={formik.values.nQuestions}
-                onValueChange={(value) =>
-                  formik.setFieldValue("nQuestions", value)
-                }
-              >
-                <SelectTrigger id="n_questions" className="w-full">
-                  <SelectValue placeholder="Select a N. Questions" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="five">5</SelectItem>
-                  <SelectItem value="ten">10</SelectItem>
-                  <SelectItem value="fifteen">15</SelectItem>
-                  <SelectItem value="twenty">20</SelectItem>
-                </SelectContent>
-              </Select>
-            </section>
+      </div>
+      <section className="max-w-[620px] rounded-lg w-full bg-neutral-900 p-2 flex flex-col gap-2  sticky bottom-0">
+        <Textarea
+          id="prompt"
+          name="prompt"
+          placeholder="Type your message here."
+          value={formik.values.prompt}
+          onChange={formik.handleChange}
+          onBlur={formik.handleBlur}
+          rows={10}
+          className="h-32 resize-none"
+        />
+        <footer className="flex justify-between items-center">
+          <div className="flex flex-row gap-2">
+            <Select
+              value={formik.values.level}
+              onValueChange={(value) => formik.setFieldValue("level", value)}
+            >
+              <SelectTrigger id="level" className="w-full">
+                <SelectValue placeholder="Select a level" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="beginner">Beginner</SelectItem>
+                <SelectItem value="easy">Easy</SelectItem>
+                <SelectItem value="medium">Medium</SelectItem>
+                <SelectItem value="hard">Hard</SelectItem>
+                <SelectItem value="expert">Expert</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select
+              value={formik.values.nQuestions}
+              onValueChange={(value) =>
+                formik.setFieldValue("nQuestions", value)
+              }
+            >
+              <SelectTrigger id="n_questions" className="w-full">
+                <SelectValue placeholder="Select a N. Questions" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="five">5</SelectItem>
+                <SelectItem value="ten">10</SelectItem>
+                <SelectItem value="fifteen">15</SelectItem>
+                <SelectItem value="twenty">20</SelectItem>
+              </SelectContent>
+            </Select>
+            {/*{formik.touched.prompt && formik.errors.prompt ? (
+              <p className="text-sm text-red-400 w-full">
+                {formik.errors.prompt}
+              </p>
+            ) : null}*/}
           </div>
 
-          <section className="grid gap-2">
-            <header className="flex items-center">
-              <Label htmlFor="prompt">Prompt</Label>
-            </header>
-            <Textarea
-              id="prompt"
-              name="prompt"
-              placeholder="Type your message here."
-              value={formik.values.prompt}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              rows={10}
-              className="h-32"
-            />
-          </section>
-          <footer className="flex justify-between items-center">
-            <section>
-              {formik.touched.prompt && formik.errors.prompt ? (
-                <p className="text-sm text-red-400">{formik.errors.prompt}</p>
-              ) : null}
-            </section>
-            <Button
-              onClick={() => formik.submitForm()}
-              type="submit"
-              className=""
-            >
-              <Icons.Send className="h-4 w-4" />
-              Send
-            </Button>
-          </footer>
-        </section>
-      </aside>
+          <Button
+            onClick={() => formik.submitForm()}
+            type="submit"
+            className=""
+          >
+            <Icons.Send className="h-4 w-4" />
+          </Button>
+        </footer>
+      </section>
     </section>
   );
 }
