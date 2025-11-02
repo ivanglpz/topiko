@@ -1,65 +1,126 @@
-import Image from "next/image";
+"use client";
+
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { useFormik } from "formik";
+import { z } from "zod";
+import { toFormikValidationSchema } from "zod-formik-adapter";
+
+const Schema = z.object({
+  prompt: z.string("Prompt is required").min(5, "Prompt too short"),
+});
 
 export default function Home() {
+  const formik = useFormik({
+    initialValues: {
+      level: "easy",
+      nQuestions: "five",
+      prompt: "",
+    },
+    validationSchema: toFormikValidationSchema(Schema),
+    onSubmit: () => {},
+  });
   return (
     <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+      <Card className="w-full max-w-sm">
+        <CardHeader>
+          <CardTitle>Topiko</CardTitle>
+          <CardDescription>
+            Create question forms with just one prompt.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-col gap-6">
+            <div className="grid grid-cols-2 gap-2">
+              <section className="flex flex-col gap-2">
+                <header className="flex items-center">
+                  <Label htmlFor="level">Levels</Label>
+                </header>
+                <Select
+                  value={formik.values.level}
+                  onValueChange={(value) =>
+                    formik.setFieldValue("level", value)
+                  }
+                >
+                  <SelectTrigger id="level" className="w-full">
+                    <SelectValue placeholder="Select a level" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="beginner">Beginner</SelectItem>
+                    <SelectItem value="easy">Easy</SelectItem>
+                    <SelectItem value="medium">Medium</SelectItem>
+                    <SelectItem value="hard">Hard</SelectItem>
+                    <SelectItem value="expert">Expert</SelectItem>
+                  </SelectContent>
+                </Select>
+              </section>
+              <section className="flex flex-col gap-2">
+                <header className="flex items-center">
+                  <Label htmlFor="level">N. Questions</Label>
+                </header>
+                <Select
+                  value={formik.values.nQuestions}
+                  onValueChange={(value) =>
+                    formik.setFieldValue("nQuestions", value)
+                  }
+                >
+                  <SelectTrigger id="n_questions" className="w-full">
+                    <SelectValue placeholder="Select a N. Questions" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="five">5</SelectItem>
+                    <SelectItem value="ten">10</SelectItem>
+                    <SelectItem value="fifteen">15</SelectItem>
+                    <SelectItem value="twenty">20</SelectItem>
+                  </SelectContent>
+                </Select>
+              </section>
+            </div>
+
+            <section className="grid gap-2">
+              <header className="flex items-center">
+                <Label htmlFor="prompt">Prompt</Label>
+              </header>
+              <Textarea
+                id="prompt"
+                name="prompt"
+                placeholder="Type your message here."
+                value={formik.values.prompt}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+              />
+              {formik.errors.prompt && (
+                <p className="text-sm text-red-400">{formik.errors.prompt}</p>
+              )}
+            </section>
+          </div>
+        </CardContent>
+        <CardFooter className="flex-col gap-2">
+          <Button
+            onClick={() => formik.submitForm()}
+            type="submit"
+            className="w-full"
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+            Create
+          </Button>
+        </CardFooter>
+      </Card>
     </div>
   );
 }
