@@ -10,6 +10,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
+import * as Icons from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -21,26 +22,101 @@ import { Textarea } from "@/components/ui/textarea";
 import { useFormik } from "formik";
 import { z } from "zod";
 import { toFormikValidationSchema } from "zod-formik-adapter";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuPortal,
+  DropdownMenuSeparator,
+  DropdownMenuShortcut,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useState } from "react";
+import { v4 as uuidv4 } from "uuid";
 
 const Schema = z.object({
   prompt: z.string("Prompt is required").min(5, "Prompt too short"),
 });
 
+type Message = {
+  id: string;
+  level: "easy" | "medium" | "hard" | "expert";
+  nQuestions: "five" | "ten" | "fifteen" | "twenty";
+  prompt: string;
+  createdAt: string;
+};
+
 export default function Home() {
+  const [messages, setMessages] = useState<Message[]>([]);
   const formik = useFormik({
     initialValues: {
-      level: "easy",
-      nQuestions: "five",
-      prompt: "",
+      level: "easy" as Message["level"],
+      nQuestions: "five" as Message["nQuestions"],
+      prompt: "" as Message["prompt"],
     },
     validationSchema: toFormikValidationSchema(Schema),
-    onSubmit: () => {},
+    onSubmit: (values, { resetForm }) => {
+      setMessages((prev) => [
+        ...prev,
+        { id: uuidv4(), ...values, createdAt: new Date().toISOString() },
+      ]);
+      resetForm();
+    },
   });
   return (
     <section className="grid grid-cols-[1fr_380px] min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-neutral-950">
       <div></div>
-      <aside className="flex flex-col h-full p-4 bg-neutral-800">
-        <section className="h-full w-full"> 1</section>
+      <aside className="flex flex-col h-full p-4 bg-neutral-900">
+        <section className="h-full w-full">
+          {messages.map((message) => (
+            <div key={message.id}>
+              <header className="flex flex-row justify-between items-center">
+                <p className="opacity-70">
+                  {new Date(message.createdAt).toLocaleString(
+                    navigator.language,
+                    {
+                      year: "numeric",
+                      month: "2-digit", // Junio, June, etc.
+                      day: "numeric", // 10, 11, etc.
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      second: "2-digit",
+                    },
+                  )}
+                </p>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost">
+                      <Icons.EllipsisVertical className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-24" align="end">
+                    <DropdownMenuItem disabled>Options</DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem>
+                      <Icons.Trash2 className=" h-4 w-4" />
+                      Delete
+                    </DropdownMenuItem>
+                    <DropdownMenuItem>
+                      <Icons.Copy className=" h-4 w-4" />
+                      Copy
+                    </DropdownMenuItem>
+                    <DropdownMenuItem>
+                      <Icons.Repeat className=" h-4 w-4" />
+                      Repeat
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </header>
+              <p>{message.prompt}</p>
+            </div>
+          ))}
+        </section>
         <section className="flex flex-col gap-4">
           <div className="flex flex-row gap-4">
             <section className="flex flex-col gap-2">
@@ -110,7 +186,8 @@ export default function Home() {
               type="submit"
               className=""
             >
-              Create
+              <Icons.Send className="h-4 w-4" />
+              Send
             </Button>
           </footer>
         </section>
